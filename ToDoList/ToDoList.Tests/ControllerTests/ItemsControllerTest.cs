@@ -11,7 +11,7 @@ using Moq;
 
 namespace ToDoList.Tests.ControllerTests
 {
-    public class ItemsControllerTest 
+    public class ItemsControllerTest : IDisposable
     {
         Mock<IItemRepository> mock = new Mock<IItemRepository>();
 
@@ -95,6 +95,12 @@ namespace ToDoList.Tests.ControllerTests
             //assert
             Assert.Contains<Item>(testItem, collection); 
         }
+
+        public void Dispose()
+        {
+            db.DeleteAll();
+        }
+
         //[Fact]
         //public void Post_MethodsAddsItem_Test()
         //{
