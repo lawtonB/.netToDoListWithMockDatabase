@@ -7,16 +7,30 @@ using Microsoft.Data.Entity;
 using ToDoList.Controllers;
 using ToDoList.Models;
 using Xunit;
+using Moq;
 
 namespace ToDoList.Tests.ControllerTests
 {
     public class ItemsControllerTest
     {
+        Mock<IItemRepository> mock = new Mock<IItemRepository>();
+
+        private void DbSetup()
+        {
+            mock.Setup(m => m.Items).Returns(new Item[]
+            {
+                new Item {ItemId = 1, Description = "Wash the dog" },
+                new Item {ItemId = 2, Description = "Do the dishes" },
+                new Item {ItemId = 3, Description = "Sweep the floor" }
+            }.AsQueryable());
+        }
+
         [Fact]
-        public void Get_View_Result_Index_Test()
+        public void Mock_Get_View_Result_Index_Test()
         {
             //Arrange 
-            ItemsController controller = new ItemsController();
+            DbSetup();
+            ItemsController controller = new ItemsController(mock.Object);
 
             //Act
             var result = controller.Index();
@@ -26,12 +40,11 @@ namespace ToDoList.Tests.ControllerTests
         }
 
         [Fact]
-        public void Get_ModelList_Index_Test()
+        public void Mock_IndexListOfItems_Test()
         {
             //arrange
-            ItemsController controller = new ItemsController();
-            IActionResult actionResult = controller.Index();
-            ViewResult indexView = controller.Index() as ViewResult;
+            DbSetup();
+            ViewResult indexView = new ItemsController(mock.Object).Index() as ViewResult;
 
             //act
 
@@ -42,27 +55,45 @@ namespace ToDoList.Tests.ControllerTests
         }
 
         [Fact]
-        public void Post_MethodsAddsItem_Test()
+        public void Mock_ConfirmEntry_Test()
         {
-            //arrange
-            ItemsController controller = new ItemsController();
-
-            Category testCategory = new Category();
-
+            DbSetup();
+            ItemsController controller = new ItemsController(mock.Object);
             Item testItem = new Item();
-
+            Category testCategory = new Category();
+           
+            testItem.Description = "wash the dog";
             testItem.CategoryId = 1;
-            testItem.Description = "Test item";
+            testItem.ItemId = 1;
+           
 
-            //act
-            controller.Create(testItem);
-
-            ViewResult indexView = new ItemsController().Index() as ViewResult;
-
+            ViewResult indexView = controller.Index() as ViewResult;
             var collection = indexView.ViewData.Model as IEnumerable<Item>;
 
-            //assert
-            Assert.Contains<Item>(testItem, collection);
+            Assert.Contains<Item>(testItem, collection); 
         }
+        //[Fact]
+        //public void Post_MethodsAddsItem_Test()
+        //{
+        //    //arrange
+        //    ItemsController controller = new ItemsController();
+
+        //    Category testCategory = new Category();
+
+        //    Item testItem = new Item();
+
+        //    testItem.CategoryId = 1;
+        //    testItem.Description = "Test item";
+
+        //    //act
+        //    controller.Create(testItem);
+
+        //    ViewResult indexView = new ItemsController().Index() as ViewResult;
+
+        //    var collection = indexView.ViewData.Model as IEnumerable<Item>;
+
+        //    //assert
+        //    Assert.Contains<Item>(testItem, collection);
+        //}
     }
 }
