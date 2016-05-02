@@ -11,9 +11,11 @@ using Moq;
 
 namespace ToDoList.Tests.ControllerTests
 {
-    public class ItemsControllerTest
+    public class ItemsControllerTest 
     {
         Mock<IItemRepository> mock = new Mock<IItemRepository>();
+
+        EFItemRepository db = new EFItemRepository(new TestDbContext());
 
         private void DbSetup()
         {
@@ -70,6 +72,27 @@ namespace ToDoList.Tests.ControllerTests
             ViewResult indexView = controller.Index() as ViewResult;
             var collection = indexView.ViewData.Model as IEnumerable<Item>;
 
+            Assert.Contains<Item>(testItem, collection); 
+        }
+
+        [Fact]
+        public void DB_CreateNewEntry_Test()
+        {
+            //arrange
+            ItemsController controller = new ItemsController(db);
+
+            Category testCategory = new Category();
+            Item testItem = new Item();
+
+            testItem.CategoryId = 1;
+            testItem.Description = "Stuff";
+
+            //act
+            controller.Create(testItem);
+            var collection = (controller.Index() as ViewResult)
+                .ViewData.Model as IEnumerable<Item>;
+
+            //assert
             Assert.Contains<Item>(testItem, collection); 
         }
         //[Fact]
