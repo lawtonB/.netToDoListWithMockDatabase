@@ -40,5 +40,29 @@ namespace ToDoList.Tests.ControllerTests
             //assert
             Assert.IsType<List<Item>>(result);
         }
+
+        [Fact]
+        public void Post_MethodsAddsItem_Test()
+        {
+            //arrange
+            ItemsController controller = new ItemsController();
+
+            Category testCategory = new Category();
+
+            Item testItem = new Item();
+
+            testItem.CategoryId = 1;
+            testItem.Description = "Test item";
+
+            //act
+            controller.Create(testItem);
+
+            ViewResult indexView = new ItemsController().Index() as ViewResult;
+
+            var collection = indexView.ViewData.Model as IEnumerable<Item>;
+
+            //assert
+            Assert.Contains<Item>(testItem, collection);
+        }
     }
 }

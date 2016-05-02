@@ -33,6 +33,7 @@ namespace ToDoList.Controllers
         [HttpPost]
         public IActionResult Create(Item item)
         {
+
             db.Items.Add(item);
             db.SaveChanges();
             return RedirectToAction("Index");
